@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Formulário de Contato</title>
+  <style>
+    :root{font-family:system-ui,Segoe UI,Roboto,Arial;background:#f3f4f6;color:#0b1220}
+    body{display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:16px}
+    .card{width:100%;max-width:520px;background:#fff;border-radius:10px;padding:20px;box-shadow:0 6px 24px rgba(2,6,23,.06)}
+    h1{margin:0 0 12px;font-size:20px}
+    .row{display:flex;gap:12px}
+    .col{flex:1}
+    .field{display:flex;flex-direction:column;margin-bottom:12px}
+    label{font-size:13px;color:#374151;margin-bottom:6px}
+    input,textarea,select{padding:10px;border:1px solid #e5e7eb;border-radius:6px;font-size:14px;outline:none}
+    textarea{min-height:100px;resize:vertical}
+    .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+    .btn{padding:10px 14px;border-radius:8px;border:0;cursor:pointer}
+    .btn-primary{background:#0b1220;color:#fff}
+    .btn-ghost{background:#f3f4f6;color:#0b1220}
+    .msg{padding:10px;border-radius:6px;font-size:14px;display:none}
+    .msg.success{background:#ecfdf5;color:#065f46}
+    .msg.error{background:#fff1f2;color:#9f1239;color:#9f1239}
+    .hint{font-size:12px;color:#6b7280;margin-top:6px}
+    .error-text{font-size:13px;color:#9f1239;margin-top:6px;display:none}
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <h1>Contato</h1>
+    <p class="hint">Preencha o formulário e clique em Enviar. Isto é uma simulação (não envia para servidor).</p>
+
+    <form id="contactForm" novalidate>
+      <div class="row">
+        <div class="col field">
+          <label for="nome">Nome *</label>
+          <input id="nome" name="nome" type="text" required minlength="2" />
+          <div class="error-text" id="err-nome">Informe seu nome (mínimo 2 caracteres).</div>
+        </div>
+
+        <div class="col field">
+          <label for="telefone">Telefone</label>
+          <input id="telefone" name="telefone" type="tel" placeholder="(00) 00000-0000" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email *</label>
+        <input id="email" name="email" type="email" required />
+        <div class="error-text" id="err-email">Informe um email válido.</div>
+      </div>
+
+      <div class="field">
+        <label for="assunto">Assunto</label>
+        <select id="assunto" name="assunto">
+          <option value="">Escolher...</option>
+          <option>Suporte</option>
+          <option>Feedback</option>
+          <option>Parcerias</option>
+          <option>Outro</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="mensagem">Mensagem *</label>
+        <textarea id="mensagem" name="mensagem" required minlength="6"></textarea>
+        <div class="error-text" id="err-mensagem">A mensagem deve ter pelo menos 6 caracteres.</div>
+      </div>
+
+      <div id="status" class="msg" role="status" aria-live="polite"></div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="btnReset">Limpar</button>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    const form = document.getElementById('contactForm');
+    const status = document.getElementById('status');
+    const errNome = document.getElementById('err-nome');
+    const errEmail = document.getElementById('err-email');
+    const errMsg = document.getElementById('err-mensagem');
+    const btnReset = document.getElementById('btnReset');
+
+    function showError(el, show){
+      el.style.display = show ? 'block' : 'none';
+    }
+
+    function validate(){
+      let ok = true;
+      const nome = form.nome.value.trim();
+      const email = form.email.value.trim();
+      const msg = form.mensagem.value.trim();
+
+      showError(errNome, !(nome.length >= 2));
+      showError(errEmail, !(form.email.checkValidity()));
+      showError(errMsg, !(msg.length >= 6));
+
+      if (!(nome.length >= 2)) ok = false;
+      if (!form.email.checkValidity()) ok = false;
+      if (!(msg.length >= 6)) ok = false;
+
+      return ok;
+    }
+
+    form.addEventListener('submit', e=>{
+      e.preventDefault();
+      status.style.display = 'none';
+      if(!validate()){
+        status.textContent = 'Por favor corrija os erros do formulário.';
+        status.className = 'msg error';
+        status.style.display = 'block';
+        return;
+      }
+
+      // Simula envio assíncrono
+      status.textContent = 'Enviando...';
+      status.className = 'msg';
+      status.style.display = 'block';
+
+      setTimeout(()=>{
+        status.textContent = 'Mensagem enviada com sucesso.';
+        status.className = 'msg success';
+        status.style.display = 'block';
+        form.reset();
+        showError(errNome, false);
+        showError(errEmail, false);
+        showError(errMsg, false);
+      }, 900);
+    });
+
+    btnReset.addEventListener('click', ()=>{
+      form.reset();
+      status.style.display = 'none';
+      showError(errNome, false);
+      showError(errEmail, false);
+      showError(errMsg, false);
+      form.nome.focus();
+    });
+
+    // Foco inicial
+    document.getElementById('nome').focus();
+  </script>
+</body>
+</html>
+```// filepath: c:\Users\ueg\desktop\Intro_web\form.html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Formulário de Contato</title>
+  <style>
+    :root{font-family:system-ui,Segoe UI,Roboto,Arial;background:#f3f4f6;color:#0b1220}
+    body{display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:16px}
+    .card{width:100%;max-width:520px;background:#fff;border-radius:10px;padding:20px;box-shadow:0 6px 24px rgba(2,6,23,.06)}
+    h1{margin:0 0 12px;font-size:20px}
+    .row{display:flex;gap:12px}
+    .col{flex:1}
+    .field{display:flex;flex-direction:column;margin-bottom:12px}
+    label{font-size:13px;color:#374151;margin-bottom:6px}
+    input,textarea,select{padding:10px;border:1px solid #e5e7eb;border-radius:6px;font-size:14px;outline:none}
+    textarea{min-height:100px;resize:vertical}
+    .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+    .btn{padding:10px 14px;border-radius:8px;border:0;cursor:pointer}
+    .btn-primary{background:#0b1220;color:#fff}
+    .btn-ghost{background:#f3f4f6;color:#0b1220}
+    .msg{padding:10px;border-radius:6px;font-size:14px;display:none}
+    .msg.success{background:#ecfdf5;color:#065f46}
+    .msg.error{background:#fff1f2;color:#9f1239;color:#9f1239}
+    .hint{font-size:12px;color:#6b7280;margin-top:6px}
+    .error-text{font-size:13px;color:#9f1239;margin-top:6px;display:none}
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <h1>Contato</h1>
+    <p class="hint">Preencha o formulário e clique em Enviar. Isto é uma simulação (não envia para servidor).</p>
+
+    <form id="contactForm" novalidate>
+      <div class="row">
+        <div class="col field">
+          <label for="nome">Nome *</label>
+          <input id="nome" name="nome" type="text" required minlength="2" />
+          <div class="error-text" id="err-nome">Informe seu nome (mínimo 2 caracteres).</div>
+        </div>
+
+        <div class="col field">
+          <label for="telefone">Telefone</label>
+          <input id="telefone" name="telefone" type="tel" placeholder="(00) 00000-0000" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email *</label>
+        <input id="email" name="email" type="email" required />
+        <div class="error-text" id="err-email">Informe um email válido.</div>
+      </div>
+
+      <div class="field">
+        <label for="assunto">Assunto</label>
+        <select id="assunto" name="assunto">
+          <option value="">Escolher...</option>
+          <option>Suporte</option>
+          <option>Feedback</option>
+          <option>Parcerias</option>
+          <option>Outro</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="mensagem">Mensagem *</label>
+        <textarea id="mensagem" name="mensagem" required minlength="6"></textarea>
+        <div class="error-text" id="err-mensagem">A mensagem deve ter pelo menos 6 caracteres.</div>
+      </div>
+
+      <div id="status" class="msg" role="status" aria-live="polite"></div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="btnReset">Limpar</button>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    const form = document.getElementById('contactForm');
+    const status = document.getElementById('status');
+    const errNome = document.getElementById('err-nome');
+    const errEmail = document.getElementById('err-email');
+    const errMsg = document.getElementById('err-mensagem');
+    const btnReset = document.getElementById('btnReset');
+
+    function showError(el, show){
+      el.style.display = show ? 'block' : 'none';
+    }
+
+    function validate(){
+      let ok = true;
+      const nome = form.nome.value.trim();
+      const email = form.email.value.trim();
+      const msg = form.mensagem.value.trim();
+
+      showError(errNome, !(nome.length >= 2));
+      showError(errEmail, !(form.email.checkValidity()));
+      showError(errMsg, !(msg.length >= 6));
+
+      if (!(nome.length >= 2)) ok = false;
+      if (!form.email.checkValidity()) ok = false;
+      if (!(msg.length >= 6)) ok = false;
+
+      return ok;
+    }
+
+    form.addEventListener('submit', e=>{
+      e.preventDefault();
+      status.style.display = 'none';
+      if(!validate()){
+        status.textContent = 'Por favor corrija os erros do formulário.';
+        status.className = 'msg error';
+        status.style.display = 'block';
+        return;
+      }
+
+      // Simula envio assíncrono
+      status.textContent = 'Enviando...';
+      status.className = 'msg';
+      status.style.display = 'block';
+
+      setTimeout(()=>{
+        status.textContent = 'Mensagem enviada com sucesso.';
+        status.className = 'msg success';
+        status.style.display = 'block';
+        form.reset();
+        showError(errNome, false);
+        showError(errEmail, false);
+        showError(errMsg, false);
+      }, 900);
+    });
+
+    btnReset.addEventListener('click', ()=>{
+      form.reset();
+      status.style.display = 'none';
+      showError(errNome, false);
+      showError(errEmail, false);
+      showError(errMsg, false);
+      form.nome.focus();
+    });
+
+    // Foco inicial
+    document.getElementById('nome').focus();
+  </script>
+</body>
+</html>

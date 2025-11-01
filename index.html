@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+    <style>
+        :root{font-family:system-ui,Segoe UI,Roboto,Arial;background:#f3f4f6}
+        body{display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+        .calc{width:320px;background:#111827;color:#fff;border-radius:12px;box-shadow:0 6px 24px rgba(2,6,23,.6);padding:16px}
+        .display{height:60px;background:#0b1220;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;word-break:break-all}
+        .display .expr{font-size:14px;color:#9ca3af;min-height:16px}
+        .display .result{font-size:24px;font-weight:600;text-align:right}
+        .keys{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+        button{height:56px;border-radius:8px;border:0;font-size:18px;cursor:pointer}
+        button.op{background:#1f2937;color:#fff}
+        button.num{background:#111827;color:#fff}
+        button.func{background:#6b7280;color:#fff}
+        button.equal{background:#10b981;color:#042114;grid-column:span 2}
+        @media (max-width:360px){.calc{width:92vw}}
+
+        /* NOVO: estilos do formulário */
+        .form-wrap{width:320px;margin-top:16px;background:#fff;color:#0b1220;border-radius:12px;padding:12px;box-shadow:0 6px 24px rgba(2,6,23,.08)}
+        .form-wrap h2{margin:0 0 8px;font-size:16px}
+        .form-row{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+        label{font-size:13px;color:#374151}
+        input[type="text"],input[type="email"],textarea{
+            padding:8px 10px;border:1px solid #e5e7eb;border-radius:6px;font-size:14px;outline:none
+        }
+        textarea{resize:vertical;min-height:80px}
+        .form-actions{display:flex;justify-content:flex-end}
+        .btn-submit{background:#0b1220;color:#fff;border-radius:8px;padding:8px 12px;border:0;cursor:pointer}
+        .form-success{color:#065f46;background:#ecfdf5;padding:8px;border-radius:6px;font-size:14px;display:none}
+    </style>
+</head>
+<body>
+    <div class="calc" role="application" aria-label="Calculadora">
+        <div class="display" aria-live="polite">
+            <div class="expr" id="expr"></div>
+            <div class="result" id="result">0</div>
+        </div>
+        <div class="keys" id="keys">
+            <button class="func" data-action="clear">C</button>
+            <button class="func" data-action="back">⌫</button>
+            <button class="func" data-action="percent">%</button>
+            <button class="op" data-value="/">÷</button>
+
+            <button class="num" data-value="7">7</button>
+            <button class="num" data-value="8">8</button>
+            <button class="num" data-value="9">9</button>
+            <button class="op" data-value="*">×</button>
+
+            <button class="num" data-value="4">4</button>
+            <button class="num" data-value="5">5</button>
+            <button class="num" data-value="6">6</button>
+            <button class="op" data-value="-">−</button>
+
+            <button class="num" data-value="1">1</button>
+            <button class="num" data-value="2">2</button>
+            <button class="num" data-value="3">3</button>
+            <button class="op" data-value="+">+</button>
+
+            <button class="num" data-value="0" style="grid-column:span 2">0</button>
+            <button class="num" data-value=".">.</button>
+            <button class="equal" data-action="equals">=</button>
+        </div>
+    </div>
+
+    <!-- NOVO: formulário simples -->
+    <div class="form-wrap" aria-labelledby="form-title">
+        <h2 id="form-title">Contato</h2>
+        <form id="contactForm" novalidate>
+            <div class="form-row">
+                <label for="nome">Nome</label>
+                <input type="text" id="nome" name="nome" required>
+            </div>
+            <div class="form-row">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-row">
+                <label for="mensagem">Mensagem</label>
+                <textarea id="mensagem" name="mensagem" required></textarea>
+            </div>
+            <div class="form-success" id="formSuccess" role="status">Mensagem enviada com sucesso.</div>
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Enviar</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const exprEl = document.getElementById('expr');
+        const resultEl = document.getElementById('result');
+        let expr = '';
+
+        function updateDisplay(){
+            exprEl.textContent = expr || '';
+            resultEl.textContent = expr ? safeEvalPreview(expr) : '0';
+        }
+
+        function safeEvalPreview(s){
+            try{
+                // substitui símbolos visuais por operadores JS
+                const js = s.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/%/g,'/100');
+                // permitir apenas caracteres seguros
+                if(!/^[0-9+\-*/().\s%]+$/.test(js)) return 'Erro';
+                const val = Function('"use strict";return ('+js+')')();
+                return (val===undefined || Number.isNaN(val)) ? 'Erro' : String(val);
+            }catch(e){ return 'Erro' }
+        }
+
+        function append(val){
+            // evitar dois operadores seguidos (exceto % and . rules)
+            if(/^[+\-*/]$/.test(val) && expr === '') return;
+            if(/^[+\-*/]$/.test(val) && /[+\-*/]$/.test(expr)) {
+                expr = expr.slice(0,-1) + val;
+            } else {
+                expr += val;
+            }
+            updateDisplay();
+        }
+
+        function clearAll(){ expr = ''; updateDisplay(); }
+        function backspace(){ expr = expr.slice(0,-1); updateDisplay(); }
+
+        function evaluateExpr(){
+            try{
+                const js = expr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/%/g,'/100');
+                if(!/^[0-9+\-*/().\s]+$/.test(js)) { resultEl.textContent = 'Erro'; return; }
+                const val = Function('"use strict";return ('+js+')')();
+                resultEl.textContent = (val === undefined || Number.isNaN(val)) ? 'Erro' : String(val);
+                expr = String(val);
+            }catch(e){
+                resultEl.textContent = 'Erro';
+            }
+        }
+
+        document.getElementById('keys').addEventListener('click', e=>{
+            const btn = e.target.closest('button');
+            if(!btn) return;
+            const v = btn.dataset.value;
+            const action = btn.dataset.action;
+            if(action === 'clear') clearAll();
+            else if(action === 'back') backspace();
+            else if(action === 'percent') append('%');
+            else if(action === 'equals') evaluateExpr();
+            else if(v) append(v);
+        });
+
+        // suporte ao teclado
+        window.addEventListener('keydown', e=>{
+            if(e.key >= '0' && e.key <= '9') append(e.key);
+            else if(e.key === '.') append('.');
+            else if(e.key === 'Enter' || e.key === '='){ e.preventDefault(); evaluateExpr(); }
+            else if(e.key === 'Backspace') backspace();
+            else if(e.key === 'Escape') clearAll();
+            else if(['+','-','*','/'].includes(e.key)) append(e.key);
+        });
+
+        updateDisplay();
+    </script>
+
+    <!-- NOVO: script do formulário -->
+    <script>
+        const form = document.getElementById('contactForm');
+        const success = document.getElementById('formSuccess');
+
+        form.addEventListener('submit', e=>{
+            e.preventDefault();
+            const nome = form.nome.value.trim();
+            const email = form.email.value.trim();
+            const msg = form.mensagem.value.trim();
+            if(!nome || !email || !msg){ 
+                success.style.display = 'none';
+                // foco no primeiro inválido
+                if(!nome) form.nome.focus();
+                else if(!email) form.email.focus();
+                else form.mensagem.focus();
+                return;
+            }
+            // simula envio
+            success.style.display = 'block';
+            form.reset();
+            setTimeout(()=> success.style.display = 'none', 4000);
+        });
+    </script>
+</body>
+</html>
